@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIM Sprint — BIM Automation Solutions</title>
+<meta name="description" content="BIM Sprint specializes in Revit API automation and custom BIM tools for Architecture, Structure, MEP & Infrastructure. We automate any engineering workflow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:        #070a0e;
+  --surface:   #0d1117;
+  --surface2:  #141920;
+  --surface3:  #1a2130;
+  --border:    rgba(0,200,255,0.09);
+  --border2:   rgba(255,255,255,0.05);
+  --cyan:      #00C8FF;
+  --cyan-dim:  rgba(0,200,255,0.07);
+  --cyan-glow: rgba(0,200,255,0.18);
+  --amber:     #F5A623;
+  --green:     #00FF9D;
+  --red-soft:  #FF6B6B;
+  --text:      #dde3ed;
+  --muted:     #64748b;
+  --display:   'Syne', sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+  --body:      'Figtree', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 400;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,200,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.022) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none;
+  z-index: 0;
+}
+section, header, footer, nav { position: relative; z-index: 1; }
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(7,10,14,0.90);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 60px;
+  height: 62px;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logo img {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+.nav-logo-text {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--cyan);
+  letter-spacing: 0.04em;
+}
+.nav-logo-sub {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  line-height: 1;
+  margin-top: 2px;
+}
+.nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--cyan); }
+.nav-cta {
+  background: var(--cyan) !important;
+  color: var(--bg) !important;
+  padding: 8px 20px !important;
+  border-radius: 2px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  transition: opacity 0.2s !important;
+}
+.nav-cta:hover { opacity: 0.85 !important; }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+header {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 130px 60px 90px;
+  overflow: hidden;
+}
+.hero-orb {
+  position: absolute;
+  width: 750px; height: 750px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,200,255,0.07) 0%, transparent 68%);
+  top: -160px; right: -100px;
+  pointer-events: none;
+}
+.hero-orb2 {
+  position: absolute;
+  width: 420px; height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,166,35,0.05) 0%, transparent 68%);
+  bottom: 60px; left: 100px;
+  pointer-events: none;
+}
+.hero-content { max-width: 860px; }
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 14px;
+  opacity: 0; animation: fadeUp 0.6s 0.1s ease forwards;
+}
+.hero-eyebrow::before {
+  content: ''; display: block;
+  width: 32px; height: 1px;
+  background: var(--cyan);
+}
+h1 {
+  font-family: var(--display);
+  font-size: clamp(52px, 7vw, 90px);
+  font-weight: 800;
+  line-height: 0.97;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  opacity: 0; animation: fadeUp 0.6s 0.2s ease forwards;
+}
+.brand-accent { color: var(--cyan); }
+.hero-tagline-big {
+  font-family: var(--display);
+  font-size: clamp(15px, 2vw, 21px);
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+  opacity: 0; animation: fadeUp 0.6s 0.3s ease forwards;
+}
+.hero-code {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--green);
+  letter-spacing: 0.06em;
+  margin-bottom: 30px;
+  opacity: 0; animation: fadeUp 0.6s 0.35s ease forwards;
+}
+.hero-code::before { content: '// '; opacity: 0.45; }
+.hero-desc {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 640px;
+  line-height: 1.85;
+  margin-bottom: 38px;
+  opacity: 0; animation: fadeUp 0.6s 0.4s ease forwards;
+}
+.hero-disciplines {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 40px;
+  opacity: 0; animation: fadeUp 0.6s 0.42s ease forwards;
+}
+.disc-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 5px 13px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--cyan);
+  background: var(--cyan-dim);
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  width: fit-content;
+  border: 1px solid var(--border);
+  margin-bottom: 46px;
+  opacity: 0; animation: fadeUp 0.6s 0.48s ease forwards;
+}
+.stat-item {
+  padding: 20px 36px;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: var(--display);
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--cyan);
+  line-height: 1;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.hero-ctas {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  opacity: 0; animation: fadeUp 0.6s 0.54s ease forwards;
+}
+.btn-primary {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 14px 32px;
+  background: var(--cyan);
+  color: var(--bg);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.15s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-ghost {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 14px 32px;
+  background: transparent;
+  color: var(--cyan);
+  border: 1px solid rgba(0,200,255,0.35);
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-ghost:hover { background: var(--cyan-dim); border-color: var(--cyan); transform: translateY(-1px); }
+.scroll-hint {
+  position: absolute;
+  bottom: 38px; left: 60px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 10px;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+.scroll-hint::after {
+  content: ''; display: block;
+  width: 1px; height: 38px;
+  background: linear-gradient(to bottom, var(--cyan), transparent);
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:0.9} }
+
+/* ═══════════════════════════════════════════
+   SHARED LAYOUT
+═══════════════════════════════════════════ */
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0,200,255,0.18), transparent);
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 14px;
+}
+.section-label::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--border);
+  max-width: 220px;
+}
+h2 {
+  font-family: var(--display);
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+h2 span { color: var(--cyan); }
+.section-sub {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 600px;
+  margin-top: 14px;
+  line-height: 1.85;
+}
+.section-header { margin-bottom: 58px; }
+
+/* ═══════════════════════════════════════════
+   WHY BIM AUTOMATION
+═══════════════════════════════════════════ */
+#why {
+  padding: 96px 60px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin-top: 52px;
+}
+.why-card {
+  background: var(--surface2);
+  padding: 36px 30px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.why-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(to right, var(--cyan), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.why-card:hover { background: rgba(0,200,255,0.04); }
+.why-card:hover::after { opacity: 1; }
+.why-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+.why-num {
+  font-family: var(--display);
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--cyan);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.why-card h3 {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.why-card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+/* ═══════════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════════ */
+#about {
+  padding: 96px 60px;
+}
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px;
+  background: var(--border);
+  margin-top: 52px;
+}
+.about-card {
+  background: var(--surface2);
+  padding: 36px 32px;
+  border-top: 2px solid transparent;
+  transition: border-color 0.3s, background 0.3s;
+}
+.about-card:hover { background: rgba(0,200,255,0.03); border-color: var(--cyan); }
+.about-card-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 14px;
+}
+.about-card h3 {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.about-card ul {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 9px;
+}
+.about-card ul li {
+  font-size: 14px;
+  color: var(--muted);
+  display: flex; align-items: flex-start; gap: 10px;
+  line-height: 1.6;
+}
+.about-card ul li::before {
+  content: '▸';
+  color: var(--cyan);
+  font-size: 9px;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   SERVICES
+═══════════════════════════════════════════ */
+#services {
+  padding: 96px 60px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 52px;
+}
+.service-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.2s;
+}
+.service-card:hover {
+  border-color: rgba(0,200,255,0.28);
+  transform: translateY(-3px);
+}
+.service-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(to right, var(--cyan), var(--amber));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.service-card:hover::before { opacity: 1; }
+.svc-icon {
+  font-size: 24px;
+  margin-bottom: 16px;
+  display: block;
+}
+.svc-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.service-card h3 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.service-card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.service-note {
+  margin-top: 40px;
+  padding: 22px 28px;
+  background: rgba(0,200,255,0.05);
+  border: 1px solid rgba(0,200,255,0.15);
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.75;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.service-note::before { content: '💡'; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+/* ═══════════════════════════════════════════
+   SKILLS (CAPABILITY)
+═══════════════════════════════════════════ */
+#capabilities {
+  padding: 96px 60px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin-top: 52px;
+}
+.cap-card {
+  background: var(--surface2);
+  padding: 32px;
+  transition: background 0.3s;
+  position: relative; overflow: hidden;
+}
+.cap-card:hover { background: rgba(0,200,255,0.04); }
+.cap-card-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 14px;
+}
+.cap-card h3 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.cap-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.cap-list li {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 9px;
+}
+.cap-list li::before { content: '▸'; color: var(--cyan); font-size: 9px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════
+   AUTOMATION SOLUTIONS (TOOLS)
+═══════════════════════════════════════════ */
+#solutions { padding: 96px 60px 60px; }
+
+.solutions-note {
+  margin-top: 28px;
+  padding: 18px 24px;
+  border: 1px dashed rgba(0,200,255,0.2);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: rgba(0,200,255,0.65);
+  line-height: 1.7;
+}
+.solutions-note strong { color: var(--cyan); }
+.package-block { margin-bottom: 72px; }
+.pkg-header {
+  display: flex; align-items: flex-start; gap: 26px;
+  padding: 28px 34px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan);
+  margin-bottom: 32px;
+  position: relative; overflow: hidden;
+}
+.pkg-header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg, rgba(0,200,255,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+.pkg-num {
+  font-family: var(--display);
+  font-size: 68px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.06);
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: -6px;
+}
+.pkg-info { flex: 1; }
+.pkg-info h3 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.pkg-info p { font-size: 14px; color: var(--muted); max-width: 720px; }
+.tech-badges { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.tech-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border: 1px solid rgba(245,166,35,0.22);
+  border-radius: 2px;
+  color: var(--amber);
+  background: rgba(245,166,35,0.05);
+}
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 28px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.tool-card:hover { border-color: rgba(0,200,255,0.22); }
+.tool-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.tool-info {
+  padding: 36px;
+  border-right: 1px solid var(--border);
+}
+.tool-number {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.tool-info h4 {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+.tool-info > p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.85;
+  margin-bottom: 18px;
+}
+.feat-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.feat-list li {
+  font-size: 12px;
+  color: var(--text);
+  display: flex; align-items: flex-start; gap: 9px;
+  line-height: 1.55;
+}
+.feat-list li::before {
+  content: '◆';
+  color: var(--amber);
+  font-size: 7px;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.tool-media {
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--surface2);
+}
+.img-actual {
+  min-height: 220px;
+  border: 1.5px solid rgba(0,200,255,0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  flex: 1;
+  background: #141920;
+}
+.img-actual img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.img-ph {
+  min-height: 220px;
+  border: 1.5px dashed rgba(0,200,255,0.18);
+  border-radius: 3px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  background: rgba(0,200,255,0.015);
+  position: relative; overflow: hidden;
+  flex: 1;
+}
+.img-ph::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(rgba(0,200,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.02) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.img-icon { font-size: 28px; opacity: 0.22; }
+.img-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(0,200,255,0.35);
+  text-align: center;
+  position: relative;
+}
+.img-caption small { display: block; font-size: 8px; margin-top: 3px; opacity: 0.6; }
+.vid-placeholder {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  border: 1px dashed rgba(0,200,255,0.18);
+  border-radius: 2px;
+  background: rgba(0,200,255,0.03);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(0,200,255,0.4);
+}
+.vid-placeholder::before { content: '▶'; font-size: 9px; }
+.tool-cmp {
+  border-top: 1px solid var(--border);
+  padding: 28px 36px;
+  background: var(--surface2);
+}
+.cmp-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cmp-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 14px;
+  text-align: left;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+thead th:first-child { color: var(--text); }
+tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.12s; }
+tbody tr:hover { background: rgba(0,200,255,0.025); }
+tbody td { padding: 10px 14px; color: var(--muted); }
+tbody td:first-child { color: var(--text); font-weight: 600; font-size: 12px; }
+.e-manual { font-family: var(--mono); font-size: 11px; color: var(--red-soft); }
+.e-auto   { font-family: var(--mono); font-size: 11px; color: var(--green); }
+.e-save   { font-family: var(--mono); font-size: 11px; color: var(--cyan); font-weight: 700; }
+.e-save.amber { color: var(--amber); }
+.e-save.green { color: var(--green); }
+.summary-bar {
+  margin-top: 18px;
+  padding: 13px 18px;
+  background: rgba(0,200,255,0.04);
+  border: 1px solid rgba(0,200,255,0.12);
+  border-radius: 3px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--muted);
+}
+.summary-bar strong { color: var(--cyan); }
+
+/* ═══════════════════════════════════════════
+   CASE STUDIES
+═══════════════════════════════════════════ */
+#cases {
+  padding: 96px 60px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 52px;
+}
+.case-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.2s;
+}
+.case-card:hover {
+  border-color: rgba(0,200,255,0.25);
+  transform: translateY(-3px);
+}
+.case-header {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.case-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 2px;
+}
+.case-tag.struct { color: var(--cyan); background: var(--cyan-dim); border: 1px solid rgba(0,200,255,0.18); }
+.case-tag.arch   { color: var(--amber); background: rgba(245,166,35,0.07); border: 1px solid rgba(245,166,35,0.18); }
+.case-tag.bim    { color: var(--green); background: rgba(0,255,157,0.06); border: 1px solid rgba(0,255,157,0.15); }
+.case-body { padding: 24px; }
+.case-body h3 {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  line-height: 1.35;
+}
+.case-section { margin-bottom: 14px; }
+.case-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.case-section p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+.case-results {
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: rgba(0,255,157,0.04);
+  border: 1px solid rgba(0,255,157,0.1);
+  border-radius: 2px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.case-result-item {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  display: flex; align-items: center; gap: 8px;
+}
+.case-result-item::before { content: '✓'; font-size: 10px; }
+
+/* ═══════════════════════════════════════════
+   MID-PAGE CTA BANNER
+═══════════════════════════════════════════ */
+.cta-banner {
+  padding: 72px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0,200,255,0.06) 0%, transparent 65%);
+}
+.cta-banner h2 {
+  margin-bottom: 16px;
+  position: relative;
+}
+.cta-banner p {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 520px;
+  margin: 0 auto 36px;
+  line-height: 1.8;
+  position: relative;
+}
+.cta-banner .btns {
+  display: flex; justify-content: center; gap: 14px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer {
+  padding: 60px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+.footer-brand h3 {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--cyan);
+  margin-bottom: 6px;
+}
+.footer-brand p {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.footer-brand .desc {
+  font-family: var(--body);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.75;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.footer-col h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 18px;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-col ul li a,
+.footer-col ul li {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  display: flex; align-items: center; gap: 7px;
+}
+.footer-col ul li a:hover { color: var(--cyan); }
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: rgba(100,116,139,0.45);
+}
+.footer-social {
+  display: flex; gap: 20px;
+}
+.footer-social a {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-social a:hover { color: var(--cyan); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .why-grid { grid-template-columns: repeat(2, 1fr); }
+  .cases-grid { grid-template-columns: 1fr 1fr; }
+  .services-grid { grid-template-columns: 1fr 1fr; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  header, #why, #about, #services, #capabilities, #solutions, #cases, .cta-banner, footer { padding-left: 20px; padding-right: 20px; }
+  .cap-grid, .about-grid { grid-template-columns: 1fr; }
+  .tool-card-body { grid-template-columns: 1fr; }
+  .tool-info { border-right: none; border-bottom: 1px solid var(--border); }
+  .hero-stats { grid-template-columns: repeat(2, auto); }
+  .stat-item { padding: 16px 20px; }
+  .why-grid { grid-template-columns: 1fr; }
+  .cases-grid { grid-template-columns: 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; }
+  #pkg01, #pkg02, #pkg03 { padding-left: 20px; padding-right: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═════════════════════════════════════════
+     NAV
+═════════════════════════════════════════ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <!-- Replace src with your actual logo path -->
+    <img src="assets/images/logo.png" alt="BIM Sprint Logo" onerror="this.style.display='none'">
+    <div>
+      <span class="nav-logo-text">BIM Sprint</span>
+      <span class="nav-logo-sub">BIM Automation</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#why">Why Automate</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#solutions">Solutions</a></li>
+    <li><a href="#cases">Case Studies</a></li>
+    <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+  </ul>
+</nav>
+
+<!-- ═════════════════════════════════════════
+     HERO
+═════════════════════════════════════════ -->
+<header id="home">
+  <div class="hero-orb"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">BIM Automation Company — Est. 2025</div>
+    <h1><span class="brand-accent">BIM Sprint</span><br>Automation Solutions</h1>
+    <div class="hero-tagline-big">We automate any engineering workflow — any discipline.</div>
+    <div class="hero-code">We turn hours of manual BIM work into seconds of precise automation.</div>
+    <p class="hero-desc">
+      Specialized in Revit API development and custom BIM automation tools. 
+      We build production-grade add-ins that eliminate repetitive modeling tasks 
+      across Architecture, Structure, MEP, and Infrastructure — deployed on real hospital, 
+      university, and large-scale residential projects.
+    </p>
+    <div class="hero-disciplines">
+      <span class="disc-tag">Architecture</span>
+      <span class="disc-tag">Structure</span>
+      <span class="disc-tag">MEP</span>
+      <span class="disc-tag">Infrastructure</span>
+      <span class="disc-tag">Revit API</span>
+      <span class="disc-tag">C# / .NET 8</span>
+      <span class="disc-tag">WPF / MVVM</span>
+      <span class="disc-tag">CAD → Revit</span>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-num">90%+</div><div class="stat-label">Avg. Time Saved</div></div>
+      <div class="stat-item"><div class="stat-num">11+</div><div class="stat-label">Tools Deployed</div></div>
+      <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Solution Packages</div></div>
+      <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">Disciplines Served</div></div>
+    </div>
+    <div class="hero-ctas">
+      <a href="#contact" class="btn-primary">Contact Us →</a>
+      <a href="#solutions" class="btn-ghost">▶ View Our Solutions</a>
+      <a href="#contact" class="btn-ghost">Book a Demo</a>
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll</div>
+</header>
+
+<div class="divider"></div>
+
+<!-- ═════════════════════════════════════════
+     WHY BIM AUTOMATION
+═════════════════════════════════════════ -->
+<section id="why">
+  <div class="section-header">
+    <div class="section-label">The Case for Automation</div>
+    <h2>Why <span>BIM Automation</span>?</h2>
+    <p class="section-sub">Manual BIM modeling is the single largest time sink in any engineering workflow. Automation changes everything.</p>
+  </div>
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-icon">⚡</div>
+      <div class="why-num">90%+</div>
+      <h3>Modeling Time Reduced</h3>
+      <p>Tasks that previously took full working days are completed in minutes. Our tools have been benchmarked on real hospital and university projects.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🎯</div>
+      <div class="why-num">Zero</div>
+      <h3>Human Errors Eliminated</h3>
+      <p>Manual placement means manual mistakes. Automated placement reads directly from engineering drawings — no re-interpretation, no typos, no missed elements.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">📐</div>
+      <div class="why-num">100%</div>
+      <h3>Workflow Standardization</h3>
+      <p>Every project follows the same standards automatically. Naming conventions, type families, cover constraints — all enforced without manual effort.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🏗</div>
+      <div class="why-num">∞</div>
+      <h3>Unlimited Scale</h3>
+      <p>A 10-floor building or a 50-floor tower — automation scales instantly. What increases linearly in manual effort stays constant with our tools.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═════════════════════════════════════════
+     ABOUT BIM SPRINT
+═════════════════════════════════════════ -->
+<section id="about">
+  <div class="section-header">
+    <div class="section-label">About the Company</div>
+    <h2>About <span>BIM Sprint</span></h2>
+    <p class="section-sub">A focused team building world-class BIM automation — not just tools, but complete workflow solutions.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-card-label">Who We Are</div>
+      <h3>Our Specialization</h3>
+      <ul>
+        <li>Specialized company in BIM Automation and Revit API tool development</li>
+        <li>7+ years of combined structural engineering and software development expertise</li>
+        <li>Deployed on real, large-scale projects — hospitals, universities, residential towers</li>
+        <li>Built with production-grade architecture: C#, .NET 8, WPF, MVVM</li>
+      </ul>
+    </div>
+    <div class="about-card">
+      <div class="about-card-label">Who We Serve</div>
+      <h3>All Disciplines</h3>
+      <ul>
+        <li><strong>Architecture</strong> — Room management, finishes, spatial layouts</li>
+        <li><strong>Structure</strong> — Rebar automation, foundation modeling, full RC detailing</li>
+        <li><strong>MEP</strong> — Multi-discipline workflow automation and QA/QC</li>
+        <li><strong>Infrastructure</strong> — Large-scale civil and site element automation</li>
+        <li>Any CAD-to-Revit conversion workflow, any team size</li>
+      </ul>
+    </div>
+    <div class="about-card">
+      <div class="about-card-label">What We Offer</div>
+      <h3>Two Delivery Models</h3>
+      <ul>
+        <li><strong>Ready Products</strong> — Purchase and deploy immediately. Our existing tools are production-ready and battle-tested.</li>
+        <li><strong>Custom Tools</strong> — We design and build bespoke Revit add-ins tailored precisely to your company's workflow and standards.</li>
+        <li>Both models include documentation, onboarding support, and updates</li>
+        <li>Enterprise licensing available for large teams</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═════════════════════════════════════════
+     SERVICES
+═════════════════════════════════════════ -->
+<section id="services">
+  <div class="section-header">
+    <div class="section-label">What We Build</div>
+    <h2>Our <span>Services</span></h2>
+    <p class="section-sub">We don't just deliver ready-made tools — we engineer custom solutions for any workflow in any discipline.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <span class="svc-icon">🔧</span>
+      <div class="svc-num">Service 01</div>
+      <h3>Custom Revit Add-in Development</h3>
+      <p>We design, build, and deliver fully custom Revit add-ins tailored to your company's exact workflow, naming standards, and project requirements. Any discipline, any complexity.</p>
+    </div>
+    <div class="service-card">
+      <span class="svc-icon">⚙️</span>
+      <div class="svc-num">Service 02</div>
+      <h3>BIM Workflow Automation</h3>
+      <p>Full analysis and automation of any repetitive BIM task — from structural detailing to architectural finishes to MEP coordination workflows. We study your process and eliminate the manual steps.</p>
+    </div>
+    <div class="service-card">
+      <span class="svc-icon">🔄</span>
+      <div class="svc-num">Service 03</div>
+      <h3>CAD-to-Revit Conversion Systems</h3>
+      <p>Automated pipelines that read imported CAD drawings and generate fully parametric Revit elements — foundations, columns, walls, slabs, beams, rebar — with zero manual re-tracing.</p>
+    </div>
+    <div class="service-card">
+      <span class="svc-icon">✅</span>
+      <div class="svc-num">Service 04</div>
+      <h3>BIM QA/QC Automation</h3>
+      <p>Automated model validation, clash detection assistance, parameter compliance checks, and data integrity tools to ensure your BIM deliverables meet project and code standards.</p>
+    </div>
+    <div class="service-card">
+      <span class="svc-icon">🏢</span>
+      <div class="svc-num">Service 05</div>
+      <h3>Enterprise BIM Solutions</h3>
+      <p>Multi-discipline automation suites designed for large engineering firms — standardized workflows, team-wide deployment, version management, and custom onboarding.</p>
+    </div>
+    <div class="service-card">
+      <span class="svc-icon">📦</span>
+      <div class="svc-num">Service 06</div>
+      <h3>Ready-Made Tool Packages</h3>
+      <p>Purchase and deploy our existing, production-tested automation packages immediately. Structural rebar, CAD-to-Revit modeling, and BIM utilities — ready from day one.</p>
+    </div>
+  </div>
+  <div class="service-note">
+    <strong>We are not limited to ready-made tools.</strong> We build custom automation solutions for any workflow, any discipline — whether Architectural, Structural, MEP, or Civil. If a task is repetitive, we can automate it. Reach out with your workflow and we'll scope a solution.
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═════════════════════════════════════════
+     CAPABILITIES
+═════════════════════════════════════════ -->
+<section id="capabilities">
+  <div class="section-header">
+    <div class="section-label">Technical Foundation</div>
+    <h2>Our <span>Technical Capabilities</span></h2>
+    <p class="section-sub">7+ years across construction sites, technical offices, and full-stack BIM development — combining deep engineering knowledge with modern software architecture.</p>
+  </div>
+  <div class="cap-grid">
+    <div class="cap-card">
+      <div class="cap-card-label">Development Stack</div>
+      <h3>Software Engineering</h3>
+      <ul class="cap-list">
+        <li>C# — Advanced OOP, SOLID, Design Patterns</li>
+        <li>.NET 8 Framework</li>
+        <li>WPF — Desktop UI Development</li>
+        <li>MVVM Architecture Pattern</li>
+        <li>Windows Forms</li>
+        <li>PostgreSQL — DB Design &amp; Management</li>
+        <li>Git &amp; GitHub — Version Control</li>
+      </ul>
+    </div>
+    <div class="cap-card">
+      <div class="cap-card-label">BIM Development</div>
+      <h3>Revit API &amp; Automation</h3>
+      <ul class="cap-list">
+        <li>Revit Add-in Development (Any Version)</li>
+        <li>Structural Rebar Automation</li>
+        <li>CAD-to-Revit Geometry Processing</li>
+        <li>BIM Workflow Automation</li>
+        <li>Model Validation &amp; QA/QC</li>
+        <li>Multi-Discipline Plugin Development</li>
+        <li>Dynamo Visual Programming</li>
+      </ul>
+    </div>
+    <div class="cap-card">
+      <div class="cap-card-label">Engineering Domain</div>
+      <h3>Structural &amp; Construction</h3>
+      <ul class="cap-list">
+        <li>Structural BIM — RC Detailing</li>
+        <li>Technical Office Engineering</li>
+        <li>Construction Site Execution</li>
+        <li>Shop Drawing Review &amp; Approval</li>
+        <li>ETABS · SAP2000 · SAFE · CSI Column</li>
+        <li>Quantity Surveying &amp; Takeoff</li>
+        <li>MEP &amp; Civil Coordination</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═════════════════════════════════════════
+     AUTOMATION SOLUTIONS — PACKAGE 01
+═════════════════════════════════════════ -->
+<section id="solutions" style="padding: 96px 60px 48px;">
+  <div class="section-header">
+    <div class="section-label">Revit API Add-ins</div>
+    <h2>Our Automation <span>Solutions</span></h2>
+    <p class="section-sub">Selected examples of our deployed automation tools — each eliminating hours of manual engineering work per use.</p>
+    <div class="solutions-note">
+      ⚠ These are <strong>selected examples only</strong> — not our complete catalog. We can build custom automation tools for any workflow, any discipline. <strong>Contact us to discuss your specific needs.</strong>
+    </div>
+  </div>
+
+  <div id="pkg01">
+  <div class="package-block">
+    <div class="pkg-header">
+      <div class="pkg-num">01</div>
+      <div class="pkg-info">
+        <h3>Structural Rebar &amp; Reinforcement Automation Suite</h3>
+        <p>A complete set of 4 tools covering all aspects of RC reinforcement detailing in Revit — from isolated footings and columns to slab additional steel and visibility control. Available as a ready product or customizable to your standards.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">C#</span>
+          <span class="tech-badge">.NET 8</span>
+          <span class="tech-badge">Revit API</span>
+          <span class="tech-badge">WPF / MVVM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOL 1.1 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 01 · Tool 01</div>
+          <h4>Isolated Footing<br>Rebar Tool</h4>
+          <p>Automates all reinforcement detailing for isolated footings in a single operation — placing mesh layers, side bars, and cover constraints automatically.</p>
+          <ul class="feat-list">
+            <li>Bottom mesh &amp; top mesh generation with full diameter and spacing control</li>
+            <li>Side bar placement — single or multiple bars based on footing depth</li>
+            <li>Uniform bar distribution respecting concrete cover on all sides</li>
+            <li>Auto-constraining bars to the lateral cover — eliminates the most time-consuming manual step</li>
+            <li><strong>Flexible selection:</strong> pick elements directly in the Revit model OR choose footing types from a list</li>
+            <li><strong>Per-type mode:</strong> reinforce one representative footing per type, or apply to all instances simultaneously</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-01-isolated-footing.png" alt="Isolated Footing Rebar Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — 10 Isolated Footings</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Bottom + Top Mesh Placement</td><td><span class="e-manual">~20 min</span></td><td><span class="e-auto">~10 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Side Bar Placement</td><td><span class="e-manual">~10 min</span></td><td><span class="e-auto">~5 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Cover Constraint</td><td><span class="e-manual">~30 min</span></td><td><span class="e-auto">Automatic</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Spacing Adjustment Per Footing</td><td><span class="e-manual">~10 min</span></td><td><span class="e-auto">Set once → all</span></td><td><span class="e-save green">99%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Project with <strong>50 isolated footings</strong> — Manual: <strong style="color:var(--red-soft)">~5 working days</strong> → With Tool: <strong>under 2 minutes</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 1.2 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 01 · Tool 02</div>
+          <h4>Column Reinforcement<br>Tool</h4>
+          <p>A complete column detailing engine — handles longitudinal bars, starter bars (dowels), and stirrups with variable spacing zones, fully compliant with the Egyptian Code of Practice.</p>
+          <ul class="feat-list">
+            <li>Main longitudinal bars — set diameter and count per X and Y direction independently</li>
+            <li>Double-layer reinforcement: add a second bar row in either or both directions</li>
+            <li>Starter bar (dowel) generation for column-to-foundation connections</li>
+            <li>Stirrups with three independent spacing zones: dense top, dense bottom, standard mid-height</li>
+            <li>Starter zone stirrups with separate spacing control</li>
+            <li><strong>Flexible selection:</strong> pick columns directly in the model OR filter by column type</li>
+            <li><strong>Per-type mode:</strong> detail one column per type, or apply to all columns of the same type at once</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-02-column-rebar.png" alt="Column Reinforcement Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — 20 Columns (Typical Floor)</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Main Longitudinal Bars</td><td><span class="e-manual">~60 min</span></td><td><span class="e-auto">~15 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Starter Bars (Dowels)</td><td><span class="e-manual">~80 min</span></td><td><span class="e-auto">Included automatically</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Stirrups + Variable Zones</td><td><span class="e-manual">~100 min</span></td><td><span class="e-auto">~10 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Full Floor — All 20 Columns</td><td><span class="e-manual">~4 hours</span></td><td><span class="e-auto">~1 min</span></td><td><span class="e-save green">97%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;10-floor building with <strong>200 columns</strong> — Manual: <strong style="color:var(--red-soft)">~40 working hours</strong> → With Tool: <strong>under 10 minutes</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 1.3 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 01 · Tool 03</div>
+          <h4>Additional Rebar from<br>AutoCAD Drawing Tool</h4>
+          <p>Reads an imported CAD drawing directly inside Revit and converts all annotated additional reinforcement into fully parametric Revit rebar — zero manual placement required.</p>
+          <ul class="feat-list">
+            <li>Extracts rebar data from CAD linework and annotations — no re-drawing required</li>
+            <li>Places all bottom additional steel across an entire slab or raft in one operation</li>
+            <li>Places all top additional steel across an entire slab or raft in one operation</li>
+            <li>Works for raft slabs and conventional concrete flat slabs</li>
+            <li>Automatically spaces and distributes bars based on dimensions in the CAD drawing</li>
+            <li>User only selects the correct CAD layer — the tool handles all geometry and placement</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-03-cad-rebar.png" alt="Additional Rebar from CAD Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — Large Raft Slab (Hospital Floor)</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Drawing rebar regions (bottom layer)</td><td><span class="e-manual">~2 hrs</span></td><td><span class="e-auto">~30 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Bar offset to correct cover position</td><td><span class="e-manual">~1 hr per layer</span></td><td><span class="e-auto">Automatic</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Spacing &amp; distribution per zone</td><td><span class="e-manual">~1 hr per zone</span></td><td><span class="e-auto">Read from drawing</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Full slab — both layers complete</td><td><span class="e-manual">~6–8 hours</span></td><td><span class="e-auto">~2 min</span></td><td><span class="e-save green">98%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Full hospital raft with <strong>200+ rebar zones</strong> — Manual: <strong style="color:var(--red-soft)">full working day</strong> → With Tool: <strong>under 5 minutes</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 1.4 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 01 · Tool 04</div>
+          <h4>Rebar Visibility<br>Control Tool</h4>
+          <p>A one-click visibility manager for all rebar elements across any Revit view — eliminating the multi-step Visibility/Graphic Overrides workflow entirely.</p>
+          <ul class="feat-list">
+            <li>Show or hide all rebar in any view — 3D, Plan, or Section — in a single click</li>
+            <li>No need to manually navigate Visibility/Graphic Overrides per view</li>
+            <li>Supports batch application across multiple views simultaneously</li>
+            <li>Restores rebar to its natural visible state with correct display settings</li>
+            <li>Essential during coordination reviews and clash detection sessions</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-ph">
+            <div class="img-icon">🖼</div>
+            <div class="img-caption">Screenshot coming soon<small>Add image to assets/images/tool-04-rebar-visibility.png</small></div>
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — Managing 20 Views</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Show rebar in one view</td><td><span class="e-manual">~30 sec (VG dialog)</span></td><td><span class="e-auto">1 click</span></td><td><span class="e-save">90%</span></td></tr>
+            <tr><td>Toggle rebar across 20 views</td><td><span class="e-manual">~10 min</span></td><td><span class="e-auto">~10 sec</span></td><td><span class="e-save amber">98%</span></td></tr>
+            <tr><td>Reset visibility after review session</td><td><span class="e-manual">~5 min per session</span></td><td><span class="e-auto">1 click</span></td><td><span class="e-save green">99%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Saves <strong>30–60 minutes daily</strong> during coordination and review cycles on complex multi-discipline projects.</div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- PACKAGE 02 -->
+  <div id="pkg02">
+  <div class="package-block">
+    <div class="pkg-header">
+      <div class="pkg-num">02</div>
+      <div class="pkg-info">
+        <h3>CAD-to-Revit Structural Modeling Suite</h3>
+        <p>4 tools that convert imported AutoCAD drawings directly into fully parametric Revit structural elements — foundations, columns, walls, slabs, and beams — with automatic type recognition, naming, and correct level placement.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">C#</span>
+          <span class="tech-badge">.NET 8</span>
+          <span class="tech-badge">Revit API</span>
+          <span class="tech-badge">WPF / MVVM</span>
+          <span class="tech-badge">CAD Geometry Processing</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOL 2.1 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 02 · Tool 01</div>
+          <h4>Foundation Modeling<br>Tool (Isolated &amp; Raft)</h4>
+          <p>Reads CAD layer geometry and automatically generates Revit foundation elements — isolated footings and raft slabs — with correct dimensions, types, naming conventions, and level offsets.</p>
+          <ul class="feat-list">
+            <li>Reads boundary geometry from a selected CAD layer → generates the correct Revit family instance</li>
+            <li>Recognizes identical geometries and groups them into a single Revit type — no manual type definition needed</li>
+            <li>Auto-naming based on dimensions + user-defined prefix (e.g. F1, F2… or BC1, BC2…)</li>
+            <li>Summary table after modeling — edit thickness per type and click Apply</li>
+            <li>RC foundations: set thickness in the CAD layer name — the tool reads it automatically</li>
+            <li>Mixed drawings supported: plain and RC foundations processed in one session</li>
+            <li>Automatic level offset per foundation thickness for correct elevation</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-05-foundation.png" alt="Foundation Modeling Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — 80 Isolated Footings (15 Types)</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Defining family types in Revit</td><td><span class="e-manual">~30 min</span></td><td><span class="e-auto">Automatic</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Placing each footing manually</td><td><span class="e-manual">~3 hrs</span></td><td><span class="e-auto">~30 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Adjusting thickness per type</td><td><span class="e-manual">~45 min</span></td><td><span class="e-auto">~2 min (table)</span></td><td><span class="e-save amber">96%</span></td></tr>
+            <tr><td>Total foundation modeling</td><td><span class="e-manual">~4–5 hrs</span></td><td><span class="e-auto">~5 min</span></td><td><span class="e-save green">98%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Hospital foundation with <strong>120+ footings &amp; raft zones</strong> — Manual: <strong style="color:var(--red-soft)">full working day</strong> → With Tool: <strong>under 10 minutes</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 2.2 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 02 · Tool 02</div>
+          <h4>Columns &amp; RC Walls<br>Modeling Tool</h4>
+          <p>Processes a CAD plan and generates all structural columns (rectangular and circular) and RC walls as parametric Revit elements — fully typed, named, and placed at correct levels.</p>
+          <ul class="feat-list">
+            <li>Reads any CAD plan without modification — no editing of the original drawing required</li>
+            <li>Auto-detects rectangular columns, circular columns, and RC walls by geometry</li>
+            <li>Groups identical geometries into shared Revit types — no manual family setup</li>
+            <li>Auto-naming with user prefix: "C" → C1, C2, C3… or "Column" → Column 1, Column 2…</li>
+            <li>Separate prefix for circular columns (e.g. R1, R2… or CR1…)</li>
+            <li>Select Base Level and Top Level from combo boxes — placed at exact elevations</li>
+            <li>RC walls: center lines on a dedicated CAD layer with thickness in the layer name</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-06-columns.png" alt="Columns & RC Walls Modeling Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — 100 Columns (15 Types)</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Identifying and defining types</td><td><span class="e-manual">~45 min</span></td><td><span class="e-auto">Automatic</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Placing all columns in model</td><td><span class="e-manual">~3 hrs</span></td><td><span class="e-auto">~1 min</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>RC Walls — center line + modeling</td><td><span class="e-manual">~1 hr</span></td><td><span class="e-auto">~30 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Total vertical elements (1 floor)</td><td><span class="e-manual">~5 hrs</span></td><td><span class="e-auto">~5 min</span></td><td><span class="e-save green">98%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;10-floor building with <strong>1,000 column placements</strong> — Manual: <strong style="color:var(--red-soft)">weeks of modeling</strong> → With Tool: <strong>under 1 hour</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 2.3 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 02 · Tool 03</div>
+          <h4>Slabs &amp; Drop Panels<br>Modeling Tool</h4>
+          <p>Reads slab boundaries from an imported CAD layer and generates Revit slab elements with correct types, elevations, and Drop Panels — including level adjustment for all slabs.</p>
+          <ul class="feat-list">
+            <li>Automatically detects slab boundary geometry from the selected CAD layer</li>
+            <li>Slab thickness embedded in the CAD layer name — read and applied automatically</li>
+            <li>Auto-naming with user-defined prefix (e.g. S1, S2… or Slab 1, Slab 2…)</li>
+            <li>Drop Panels: recognizes existing slab geometry and places Drop Panels beneath correct slabs automatically</li>
+            <li>Level control: raise or lower any slab elevation directly from the tool interface</li>
+            <li>Supports any Drop Panel shape: rectangular, L-shaped, T-shaped, or irregular</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-07-slabs.png" alt="Slabs & Drop Panels Modeling Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — Typical Floor (30 Slab Zones + Drop Panels)</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Tracing slab boundaries in Revit</td><td><span class="e-manual">~2 hrs</span></td><td><span class="e-auto">~1 min</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Assigning types and thickness</td><td><span class="e-manual">~30 min</span></td><td><span class="e-auto">Automatic</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Placing Drop Panels</td><td><span class="e-manual">~1.5 hrs</span></td><td><span class="e-auto">~30 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Level adjustments</td><td><span class="e-manual">~30 min</span></td><td><span class="e-auto">~2 min</span></td><td><span class="e-save amber">93%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Multi-floor structure with <strong>300+ slab zones</strong> — Manual: <strong style="color:var(--red-soft)">weeks of modeling</strong> → With Tool: <strong>hours</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 2.4 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 02 · Tool 04</div>
+          <h4>Beams (Regular &amp; Irregular)<br>Modeling Tool</h4>
+          <p>Reads beam geometry from an imported CAD plan and places all structural beams — including irregular cross-sections, L-shaped, T-shaped, and circular beams — across any number of floors simultaneously.</p>
+          <ul class="feat-list">
+            <li>Reads beam boundary geometry from the CAD drawing — no manual tracing required</li>
+            <li>Supports standard rectangular, irregular sections, L-beams, T-beams, and circular beams</li>
+            <li>Reads beam dimensions from drawing annotations or from an external schedule in the CAD file</li>
+            <li>Multi-floor deployment: select multiple levels → model all beams across all floors in one operation</li>
+            <li>Automatic type recognition and grouping — identical sections share one Revit type</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-08-beams.png" alt="Beams Modeling Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — 200 Beams Across 10 Floors</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Defining beam section types</td><td><span class="e-manual">~1 hr</span></td><td><span class="e-auto">Automatic</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Tracing and placing beams (1 floor)</td><td><span class="e-manual">~3 hrs</span></td><td><span class="e-auto">~2 min</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Replicating to 10 floors</td><td><span class="e-manual">~30 hrs total</span></td><td><span class="e-auto">Select levels → done</span></td><td><span class="e-save green">99%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;10-floor building with <strong>2,000 beam placements</strong> — Manual: <strong style="color:var(--red-soft)">entire project week</strong> → With Tool: <strong>under 30 minutes</strong></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- PACKAGE 03 -->
+  <div id="pkg03">
+  <div class="package-block">
+    <div class="pkg-header">
+      <div class="pkg-num">03</div>
+      <div class="pkg-info">
+        <h3>General &amp; Multi-Discipline BIM Utilities</h3>
+        <p>General-purpose tools serving Architectural, Structural, and MEP workflows — model navigation, room finishing management, and parameter data transfer across the entire Revit model.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">C#</span>
+          <span class="tech-badge">.NET 8</span>
+          <span class="tech-badge">Revit API</span>
+          <span class="tech-badge">WPF / MVVM</span>
+          <span class="tech-badge">Observable Properties</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOL 3.1 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 03 · Tool 01</div>
+          <h4>Model Navigator<br>Tool</h4>
+          <p>A centralized model control panel — browse all categories and types, select any combination of elements, and perform bulk actions (isolate, hide, delete, override color) from a single interface.</p>
+          <ul class="feat-list">
+            <li>Displays all element categories in the project in a browsable list</li>
+            <li>Select a category → instantly lists all Revit types within it</li>
+            <li>Select one or multiple types → Select All fetches every instance in the model</li>
+            <li>Bulk actions: Isolate, Hide, Delete, or apply Color Override</li>
+            <li>Reverse actions: un-hide, un-isolate, restore — all from the same panel</li>
+            <li>Restore deleted elements directly from the interface — no Undo needed</li>
+            <li>Pick multiple categories + apply a display color to all selected elements instantly</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-09-navigator.png" alt="Model Navigator Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — Color-Coding Structural Elements</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Select all slabs by type in Revit</td><td><span class="e-manual">~5 min</span></td><td><span class="e-auto">2 clicks</span></td><td><span class="e-save amber">95%</span></td></tr>
+            <tr><td>Apply color override to category</td><td><span class="e-manual">~3 min</span></td><td><span class="e-auto">Pick color → done</span></td><td><span class="e-save green">98%</span></td></tr>
+            <tr><td>Delete all elements of a type</td><td><span class="e-manual">~10 min</span></td><td><span class="e-auto">Select type → Delete</span></td><td><span class="e-save green">97%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Full model color-coding for <strong>coordination review</strong> — Manual: <strong style="color:var(--red-soft)">1–2 hours</strong> → With Tool: <strong>under 5 minutes</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 3.2 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 03 · Tool 02</div>
+          <h4>Room Wizard<br>Tool</h4>
+          <p>A room management panel that lists all rooms in the project, displays their properties, and lets architects change finish materials while viewing the result live in a Section Box — in real time.</p>
+          <ul class="feat-list">
+            <li>Lists every room with: name, number, finish type, level, area, and volume</li>
+            <li>One-click Section Box: press a room's button → Revit creates a Section Box around that exact room instantly</li>
+            <li>Live material change: select a finish material from a dropdown → room updates in real time via MVVM Observable Properties</li>
+            <li>See the finish in context before committing — adjacent walls, adjacent finishes visible</li>
+            <li>No manual navigation to each room, no view creation, no Property Inspector needed</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-10-room-wizard.png" alt="Room Wizard Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — Reviewing &amp; Updating Finishes (50-Room Floor)</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Navigate to a specific room in model</td><td><span class="e-manual">~1–2 min per room</span></td><td><span class="e-auto">1 click</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Create Section Box for room</td><td><span class="e-manual">~3 min</span></td><td><span class="e-auto">Automatic</span></td><td><span class="e-save green">100%</span></td></tr>
+            <tr><td>Change floor finish material</td><td><span class="e-manual">~2 min</span></td><td><span class="e-auto">Dropdown → instant</span></td><td><span class="e-save amber">95%</span></td></tr>
+            <tr><td>Full review session — 50 rooms</td><td><span class="e-manual">~4–5 hrs</span></td><td><span class="e-auto">~30 min</span></td><td><span class="e-save amber">90%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;10,000 m² building with <strong>300+ rooms</strong> — Manual finish review: <strong style="color:var(--red-soft)">days of work</strong> → With Tool: <strong>a few hours</strong></div>
+      </div>
+    </div>
+
+    <!-- TOOL 3.3 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 03 · Tool 03a</div>
+          <h4>Instance Parameter<br>Transfer Tool</h4>
+          <p>A data management tool for Revit instance parameters — copy, move, or delete parameter values across element instances, or assign new values to any parameter type directly from the interface.</p>
+          <ul class="feat-list">
+            <li>Browse all categories → select a type → view all available instance parameters</li>
+            <li>Transfer values from one instance parameter to another (Move or Copy)</li>
+            <li>Target parameter list filtered by compatible storage type — no type mismatch errors</li>
+            <li>Supports all storage types: String, Integer, Double, Element ID</li>
+            <li>Clear (delete) parameter values in bulk</li>
+            <li>Directly assign a custom value to any parameter for all selected elements at once</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-11-instance-params.png" alt="Instance Parameter Transfer Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Time Comparison — Transferring Parameter Data Across 500 Elements</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Select all elements of a category/type</td><td><span class="e-manual">~10 min</span></td><td><span class="e-auto">Category → Type → Select</span></td><td><span class="e-save amber">95%</span></td></tr>
+            <tr><td>Copy value to new parameter (500 elements)</td><td><span class="e-manual">Not feasible manually</span></td><td><span class="e-auto">~5 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Clear a parameter value in bulk</td><td><span class="e-manual">Hours of editing</span></td><td><span class="e-auto">1 click</span></td><td><span class="e-save green">99%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Critical for <strong>BIM data management and QA/QC</strong> — previously impractical tasks completed in seconds.</div>
+      </div>
+    </div>
+
+    <!-- TOOL 3.4 -->
+    <div class="tool-card">
+      <div class="tool-card-body">
+        <div class="tool-info">
+          <div class="tool-number">Package 03 · Tool 03b</div>
+          <h4>Type Parameter<br>Transfer Tool</h4>
+          <p>The companion to the Instance Parameter Tool — same powerful interface but operating on Revit family type parameters rather than individual instances.</p>
+          <ul class="feat-list">
+            <li>Browse all categories → select types → view available type parameters</li>
+            <li>Transfer values between type parameters (Move or Copy) with auto storage-type filtering</li>
+            <li>Assign custom values directly to any type parameter across the project</li>
+            <li>Clear type parameter values from selected types in bulk</li>
+            <li>Supports all parameter storage types: String, Integer, Double, Element ID</li>
+            <li>Essential for standardizing type data, quantity takeoff preparation, and BIM data exports</li>
+          </ul>
+        </div>
+        <div class="tool-media">
+          <div class="img-actual">
+            <img src="assets/images/tool-12-type-params.png" alt="Type Parameter Transfer Tool" />
+          </div>
+          <div class="vid-placeholder">Demo video — paste link here</div>
+        </div>
+      </div>
+      <div class="tool-cmp">
+        <div class="cmp-title">Example — Batch-Updating Material Parameter Across 80 Family Types</div>
+        <table>
+          <thead><tr><th>Task</th><th>Manual</th><th>With Tool</th><th>Saved</th></tr></thead>
+          <tbody>
+            <tr><td>Open each type's properties dialog</td><td><span class="e-manual">~1 min × 80 = 80 min</span></td><td><span class="e-auto">Browse list — all visible</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Update parameter value per type</td><td><span class="e-manual">~30 sec × 80 = 40 min</span></td><td><span class="e-auto">Bulk assign → ~3 sec</span></td><td><span class="e-save green">99%</span></td></tr>
+            <tr><td>Verify changes across all types</td><td><span class="e-manual">~30 min</span></td><td><span class="e-auto">All visible in list</span></td><td><span class="e-save amber">90%</span></td></tr>
+          </tbody>
+        </table>
+        <div class="summary-bar">⚡ &nbsp;Together, both parameter tools transform <strong>BIM data management from a day-long task into minutes</strong>.</div>
+      </div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═════════════════════════════════════════
+     CASE STUDIES
+═════════════════════════════════════════ -->
+<section id="cases">
+  <div class="section-header">
+    <div class="section-label">Real-World Impact</div>
+    <h2>Case <span>Studies</span></h2>
+    <p class="section-sub">How our automation solutions performed on actual engineering projects — with measurable results.</p>
+  </div>
+  <div class="cases-grid">
+    <div class="case-card">
+      <div class="case-header">
+        <span class="case-tag struct">Structural</span>
+      </div>
+      <div class="case-body">
+        <h3>Hospital Raft Slab — Full Rebar Automation</h3>
+        <div class="case-section">
+          <div class="case-section-label">Problem</div>
+          <p>A large hospital raft slab with 200+ rebar zones required weeks of manual detailing in Revit. The structural team was spending the entire project timeline on rebar placement alone.</p>
+        </div>
+        <div class="case-section">
+          <div class="case-section-label">Solution</div>
+          <p>Deployed our CAD Rebar tool to read the additional reinforcement directly from the imported structural drawing. The tool extracted bar data, spacing, and zones automatically.</p>
+        </div>
+        <div class="case-results">
+          <div class="case-result-item">Full working day of work → under 5 minutes</div>
+          <div class="case-result-item">200+ rebar zones placed without a single manual bar</div>
+          <div class="case-result-item">Zero cover constraint errors (fully automated)</div>
+          <div class="case-result-item">Time saved: ~98% per slab floor</div>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-header">
+        <span class="case-tag struct">Structural</span>
+      </div>
+      <div class="case-body">
+        <h3>University Tower — 10-Floor Structural Modeling from CAD</h3>
+        <div class="case-section">
+          <div class="case-section-label">Problem</div>
+          <p>A 10-floor university building required full structural Revit modeling (columns, slabs, beams, foundations) from existing AutoCAD drawings. Manual modeling was estimated at 3–4 weeks.</p>
+        </div>
+        <div class="case-section">
+          <div class="case-section-label">Solution</div>
+          <p>Applied the full CAD-to-Revit Suite — Foundation Tool, Columns Tool, Slabs Tool, and Beams Tool — processing all CAD layers in sequence across all 10 floors.</p>
+        </div>
+        <div class="case-results">
+          <div class="case-result-item">3–4 weeks of modeling → completed in under 2 hours</div>
+          <div class="case-result-item">1,000+ column placements automated</div>
+          <div class="case-result-item">All family types auto-generated and named</div>
+          <div class="case-result-item">Time saved: ~99% vs manual process</div>
+        </div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-header">
+        <span class="case-tag arch">Architecture</span>
+      </div>
+      <div class="case-body">
+        <h3>300-Room Hospital — Architectural Finish Review</h3>
+        <div class="case-section">
+          <div class="case-section-label">Problem</div>
+          <p>Architectural team needed to review and update floor finish materials for 300+ rooms across multiple hospital floors. Manual navigation and property editing was taking days per review cycle.</p>
+        </div>
+        <div class="case-section">
+          <div class="case-section-label">Solution</div>
+          <p>Deployed the Room Wizard tool — providing instant Section Box navigation per room and live material change preview. The entire review workflow moved into a single panel.</p>
+        </div>
+        <div class="case-results">
+          <div class="case-result-item">Days of review work → a few hours per cycle</div>
+          <div class="case-result-item">300 rooms navigated with 1 click each</div>
+          <div class="case-result-item">Real-time finish preview eliminated rework</div>
+          <div class="case-result-item">Time saved: ~90% per review session</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═════════════════════════════════════════
+     CTA BANNER
+═════════════════════════════════════════ -->
+<section class="cta-banner" id="contact">
+  <h2>Ready to <span>Automate</span> Your Workflow?</h2>
+  <p>Tell us about your process. We'll scope a solution — whether it's a ready tool or a custom add-in built specifically for your team.</p>
+  <div class="btns">
+    <a href="mailto:mnsourabubaakr95@gmail.com" class="btn-primary">✉ Contact Us</a>
+    <a href="mailto:mnsourabubaakr95@gmail.com?subject=Custom Tool Request" class="btn-ghost">Request Custom Tool</a>
+    <a href="mailto:mnsourabubaakr95@gmail.com?subject=Demo Request" class="btn-ghost">Book a Demo</a>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════
+     FOOTER
+═════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>BIM Sprint</h3>
+      <p>BIM Automation Solutions</p>
+      <p class="desc">We build custom Revit add-ins and BIM automation tools for engineering firms across Architecture, Structure, MEP, and Infrastructure disciplines. Any workflow. Any discipline. Any scale.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Solutions</h4>
+      <ul>
+        <li><a href="#pkg01">Structural Rebar Suite</a></li>
+        <li><a href="#pkg02">CAD-to-Revit Suite</a></li>
+        <li><a href="#pkg03">BIM Utilities Suite</a></li>
+        <li><a href="#services">Custom Development</a></li>
+        <li><a href="#cases">Case Studies</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="tel:+201068970898">📞 +20 106 897 0898</a></li>
+        <li><a href="mailto:mnsourabubaakr95@gmail.com">✉ mnsourabubaakr95@gmail.com</a></li>
+        <li><a href="https://github.com/mnsourabubakr" target="_blank">⌥ GitHub</a></li>
+        <li><a href="https://linkedin.com/in/mansour-abo-bakr-61aa10239" target="_blank">▣ LinkedIn</a></li>
+        <li>📍 10th of Ramadan, Sharqia, Egypt</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 BIM Sprint · All rights reserved · Open to local &amp; international clients</div>
+    <div class="footer-social">
+      <a href="https://github.com/mnsourabubakr" target="_blank">GitHub</a>
+      <a href="https://linkedin.com/in/mansour-abo-bakr-61aa10239" target="_blank">LinkedIn</a>
+      <a href="mailto:mnsourabubaakr95@gmail.com">Email</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
